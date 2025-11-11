@@ -1,3 +1,3 @@
 .env*
-backend/src/node_modules/
-backend/src/dist/
+node_modules/
+dist/
