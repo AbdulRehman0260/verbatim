@@ -1,11 +1,23 @@
 import express from 'express';
+import postgres from 'postgres';
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { config } from './config.js';
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+import { createUserHandler, loginUserHandler, logoutHandler } from './api/handlers/userHandler.js';
+dotenv.config();
+console.log("Loaded DATABASE_URL =", process.env.DATABASE_URL);
+const sql = postgres(config.db.url, { max: 1 });
+await migrate(drizzle(sql), config.db.migrationConfig);
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('.'));
-app.listen(process.env.SERVER_PORT, () => {
-    console.log(`http://localhost:${process.env.SERVER_PORT}`);
-    console.log(`Server is running on port ${process.env.SERVER_PORT}`);
+// users api calls
+app.post("/api/users", createUserHandler);
+app.get("/api/login", loginUserHandler);
+app.post("/api/logout", logoutHandler);
+app.listen(config.api.port, () => {
+    console.log(`http://localhost:${config.api.port}`);
+    console.log(`Server is running on port ${config.api.port}`);
 });

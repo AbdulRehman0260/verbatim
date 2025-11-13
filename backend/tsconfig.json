@@ -1,4 +1,4 @@
-{
+ {
     "compilerOptions": {
         "baseUrl": ".",
         "target": "esnext",
@@ -12,6 +12,6 @@
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true
     },
-    "include": ["./src/**/*.ts","env.d.ts"],
-    "exclude": ["node_modules"]
+    "include": ["./src/**/*.ts"],
+    "exclude": ["node_modules","drizzle.config.ts"]
 }
