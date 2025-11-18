@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { axiosInstance } from "../lib/axios";
+import { authStore } from "../store/store";
+import Hero from "../components/Hero";
 
 const SignupPage = () => {
+  const { signup } = authStore();
   // frontend form values
   const [formData, setFormData] = useState({
     name: "",
@@ -31,20 +33,15 @@ const SignupPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const result = validateForm();
-
     if (result == true) {
-      try {
-        await axiosInstance.post("/users", formData);
-        toast.success("Account created successfully");
-      } catch (error) {
-        toast.error("Error signing up");
-      }
+      signup(formData);
     }
   };
 
   return (
     <div className="grid grid-cols-1 gap-4 h-screen">
-      <div className="flex justify-center items-center">
+      <div className="flex flex-col justify-start items-center gap-20 mt-10">
+        <Hero btn="Sign in" text="Already have an account?" link="/login" />
         <form onSubmit={handleSubmit}>
           <fieldset className="fieldset bg-base-200 border-base-300 rounded-box w-lg border p-4">
             <label className="fieldset-legend text-lg">Signup</label>

@@ -33,7 +33,7 @@ app.use(
 
 // users api calls
 app.post("/api/users", createUserHandler);
-app.get("/api/login", loginUserHandler);
+app.post("/api/login", loginUserHandler);
 app.post("/api/logout", logoutHandler);
 
 app.listen(config.api.port, () => {

@@ -22,7 +22,7 @@ app.use(cors({
 }));
 // users api calls
 app.post("/api/users", createUserHandler);
-app.get("/api/login", loginUserHandler);
+app.post("/api/login", loginUserHandler);
 app.post("/api/logout", logoutHandler);
 app.listen(config.api.port, () => {
     console.log(`http://localhost:${config.api.port}`);
