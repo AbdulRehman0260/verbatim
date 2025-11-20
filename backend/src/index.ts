@@ -11,6 +11,11 @@ import {
   loginUserHandler,
   logoutHandler,
 } from "./api/handlers/userHandler.js";
+import {
+  createPostHandler,
+  imageUploadHandler,
+} from "./api/handlers/postHandler.js";
+import { authMiddleware } from "./db/authentication/auth.js";
 
 dotenv.config();
 
@@ -35,6 +40,10 @@ app.use(
 app.post("/api/users", createUserHandler);
 app.post("/api/login", loginUserHandler);
 app.post("/api/logout", logoutHandler);
+
+//image api calls
+app.get("/upload-url", authMiddleware, imageUploadHandler);
+app.post("/api/post", authMiddleware, createPostHandler);
 
 app.listen(config.api.port, () => {
   console.log(`http://localhost:${config.api.port}`);

@@ -7,6 +7,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { createUserHandler, loginUserHandler, logoutHandler, } from "./api/handlers/userHandler.js";
+import { createPostHandler, imageUploadHandler, } from "./api/handlers/postHandler.js";
+import { authMiddleware } from "./db/authentication/auth.js";
 dotenv.config();
 console.log("Loaded DATABASE_URL =", process.env.DATABASE_URL);
 const sql = postgres(config.db.url, { max: 1 });
@@ -24,6 +26,9 @@ app.use(cors({
 app.post("/api/users", createUserHandler);
 app.post("/api/login", loginUserHandler);
 app.post("/api/logout", logoutHandler);
+//image api calls
+app.get("/upload-url", authMiddleware, imageUploadHandler);
+app.post("/api/post", authMiddleware, createPostHandler);
 app.listen(config.api.port, () => {
     console.log(`http://localhost:${config.api.port}`);
     console.log(`Server is running on port ${config.api.port}`);
