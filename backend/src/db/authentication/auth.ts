@@ -25,7 +25,6 @@ export const checkPasswordHash = async (
   }
 };
 
-// ...existing code...
 export const authMiddleware = (
   req: Request,
   res: Response,
@@ -46,12 +45,15 @@ export const authMiddleware = (
       return res.status(401).json({ error: "Unauthorized - No token" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
-      userID: string;
-    };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
     console.log("decoded JWT payload:", decoded);
+    console.log("decoded keys:", Object.keys(decoded));
 
-    (req as any).userId = decoded.userID;
+    // Check both userId and userID to see which one exists
+    const userId = decoded.userId || decoded.userID;
+    console.log("extracted userId:", userId);
+
+    (req as any).userId = userId;
 
     console.log("Auth successful, userId:", (req as any).userId);
     next();
@@ -60,4 +62,3 @@ export const authMiddleware = (
     return res.status(401).json({ error: "Unauthorized - Invalid token" });
   }
 };
-// ...existing code...

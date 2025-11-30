@@ -19,6 +19,7 @@ import {
 } from "./api/handlers/commentsHandler.js";
 import {
   createUserHandler,
+  getCurrentUserHandler,
   loginUserHandler,
   logoutHandler,
 } from "./api/handlers/userHandler.js";
@@ -70,6 +71,9 @@ app.delete("/api/comments/:commentId", authMiddleware, deleteCommentHandler);
 // likes api calls
 app.get("/api/likes/:postId", getLikesHandler);
 app.post("/api/likes/:postId", authMiddleware, likePostHandler);
+
+//auth api calls
+app.get("/api/me", authMiddleware, getCurrentUserHandler);
 
 app.listen(config.api.port, () => {
   console.log(`http://localhost:${config.api.port}`);

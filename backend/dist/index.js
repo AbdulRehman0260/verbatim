@@ -8,7 +8,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { getLikesHandler, likePostHandler, } from "./api/handlers/likesHandler.js";
 import { createCommentHandler, deleteCommentHandler, getCommentsByPostIdHandler, } from "./api/handlers/commentsHandler.js";
-import { createUserHandler, loginUserHandler, logoutHandler, } from "./api/handlers/userHandler.js";
+import { createUserHandler, getCurrentUserHandler, loginUserHandler, logoutHandler, } from "./api/handlers/userHandler.js";
 import { createPostHandler, getAllPostsHandler, getPostByIdHandler, imageUploadHandler, } from "./api/handlers/postHandler.js";
 import { authMiddleware } from "./db/authentication/auth.js";
 dotenv.config();
@@ -32,15 +32,17 @@ app.post("/api/logout", logoutHandler);
 // post api calls
 app.get("/upload-url", authMiddleware, imageUploadHandler);
 app.get("/api/posts", getAllPostsHandler);
-app.get("/api/posts/:id", getPostByIdHandler); // Changed from /api/post/:id
-app.post("/api/posts", authMiddleware, createPostHandler); // Changed from /api/post
+app.get("/api/posts/:id", getPostByIdHandler);
+app.post("/api/posts", authMiddleware, createPostHandler);
 // comments api calls
-app.get("/api/comments/:postId", getCommentsByPostIdHandler); // Simplified
-app.post("/api/comments/:postId", authMiddleware, createCommentHandler); // Simplified
-app.delete("/api/comments/:commentId", authMiddleware, deleteCommentHandler); // Simplified
+app.get("/api/comments/:postId", getCommentsByPostIdHandler);
+app.post("/api/comments/:postId", authMiddleware, createCommentHandler);
+app.delete("/api/comments/:commentId", authMiddleware, deleteCommentHandler);
 // likes api calls
-app.get("/api/likes/:postId", getLikesHandler); // Simplified
-app.post("/api/likes/:postId", authMiddleware, likePostHandler); // Simplified - toggle like/unlike
+app.get("/api/likes/:postId", getLikesHandler);
+app.post("/api/likes/:postId", authMiddleware, likePostHandler);
+//auth api calls
+app.get("/api/me", authMiddleware, getCurrentUserHandler);
 app.listen(config.api.port, () => {
     console.log(`http://localhost:${config.api.port}`);
     console.log(`Server is running on port ${config.api.port}`);
