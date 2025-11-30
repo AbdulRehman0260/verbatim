@@ -20,6 +20,14 @@ const NavBar = () => {
             </button>
           </li>
           <li>
+            <button
+              onClick={() => navgate("/profile")}
+              className="bg-base-100 rounded p-2 hover:bg-base-200"
+            >
+              Profile
+            </button>
+          </li>
+          <li>
             <button onClick={logout}>Logout</button>
           </li>
         </ul>

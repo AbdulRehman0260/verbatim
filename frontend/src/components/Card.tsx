@@ -1,26 +1,59 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-const Card = () => {
+interface CardProps {
+  id: string;
+  title: string;
+  content: string;
+  author: string;
+  createdAt: string;
+  image?: string;
+}
+
+export default function Card({
+  id,
+  title,
+  author,
+  createdAt,
+  image,
+}: CardProps) {
   return (
-    <div className="card bg-base-100 w-96 shadow-sm">
-      <figure>
-        <img
-          src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-          alt="Shoes"
-        />
-      </figure>
-      <div className="card-body">
-        <h2 className="card-title">Card Title</h2>
-        <p>
-          A card component has a figure, a body part, and inside body there are
-          title and actions parts
-        </p>
-        <div className="card-actions justify-end">
-          <button className="btn btn-primary">Buy Now</button>
+    <Link to={`/post/${id}`} className="block w-full">
+      <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full flex flex-col">
+        {image ? (
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-48 object-cover flex-shrink-0"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        ) : (
+          <div className="w-full h-48 bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+            <span className="text-white text-4xl font-bold">
+              {title.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
+
+        <div className="p-5 flex flex-col flex-grow">
+          <h2 className="text-lg font-bold text-gray-900 mb-auto line-clamp-2">
+            {title}
+          </h2>
+
+          <div className="flex items-center justify-between text-sm text-gray-600 border-t pt-3 mt-4">
+            <span className="font-medium truncate mr-2">{author}</span>
+            <span className="whitespace-nowrap text-xs">
+              {new Date(createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
-};
-
-export default Card;
+}

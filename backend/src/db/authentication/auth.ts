@@ -1,6 +1,7 @@
 import argon2 from "argon2";
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import { config } from "src/config.js";
 
 export async function hashPassword(password: string): Promise<string> {
   try {
@@ -24,41 +25,39 @@ export const checkPasswordHash = async (
   }
 };
 
+// ...existing code...
 export const authMiddleware = (
-  req: Request | any,
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log(
-    "auth middleware - cookies:",
-    req.cookies,
-    "auth header:",
-    req.headers.authorization
-  );
-
-  const token =
-    req.cookies?.token ??
-    req.cookies?.jwt ??
-    (req.headers?.authorization
-      ? String(req.headers.authorization).split(" ")[1]
-      : undefined);
-
-  if (!token) return res.status(401).json({ error: "Not authenticated" });
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as any;
-    console.log("decoded JWT payload:", decoded);
+    console.log(
+      "auth middleware - cookies:",
+      req.cookies,
+      "auth header:",
+      req.headers.authorization
+    );
 
-    const normalizedId = decoded?.userID ?? decoded?.userId ?? decoded?.id;
-    if (!normalizedId) {
-      console.error("No user id found in token payload");
-      return res.status(401).json({ error: "Invalid token payload" });
+    const token = req.cookies.jwt || req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      console.log("No token found");
+      return res.status(401).json({ error: "Unauthorized - No token" });
     }
 
-    req.user = { id: normalizedId, ...decoded };
+    const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as {
+      userID: string;
+    };
+    console.log("decoded JWT payload:", decoded);
+
+    (req as any).userId = decoded.userID;
+
+    console.log("Auth successful, userId:", (req as any).userId);
     next();
-  } catch (err) {
-    console.error("Token verification failed:", err);
-    res.status(401).json({ error: "Invalid token" });
+  } catch (error) {
+    console.error("Auth middleware error:", error);
+    return res.status(401).json({ error: "Unauthorized - Invalid token" });
   }
 };
+// ...existing code...

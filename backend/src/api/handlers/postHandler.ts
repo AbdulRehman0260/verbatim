@@ -1,7 +1,15 @@
 import { Request, Response } from "express";
 import { createPresignedUrl } from "../utils/utils.js";
-import { createPost } from "../../db/queries/posts.js";
-import { v4 as uuidv4 } from "uuid";
+import {
+  createPost,
+  getPostById,
+  getAllPosts,
+} from "../../db/queries/posts.js";
+
+import postgres from "postgres";
+import { config } from "../../config.js";
+
+const sql = postgres(config.db.url, { max: 1 });
 
 export const imageUploadHandler = async (req: Request, res: Response) => {
   try {
@@ -26,26 +34,51 @@ export const imageUploadHandler = async (req: Request, res: Response) => {
 
 export const createPostHandler = async (req: Request | any, res: Response) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Not authenticated" });
+
     const { title, content, thumbnailUrl } = req.body;
-    const id = uuidv4();
-    const now = new Date();
 
     const newPost = await createPost({
-      id,
-      createdAt: now,
-      updatedAt: now,
       userId,
       title,
       content,
       thumbnailUrl: thumbnailUrl ?? null,
-      isPublished: null,
-      publishedAt: null,
     });
 
-    res.json(newPost);
+    res.status(201).json(newPost);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to create post" });
+  }
+};
+
+export const getAllPostsHandler = async (req: Request, res: Response) => {
+  try {
+    let posts;
+    try {
+      posts = await getAllPosts();
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+    res.json({ posts });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch posts" });
+  }
+};
+
+export const getPostByIdHandler = async (req: Request, res: Response) => {
+  try {
+    const postId = req.params.id;
+    const post = await getPostById(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    res.json({ post: post });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch post" });
   }
 };

@@ -6,8 +6,10 @@ import { config } from "./config.js";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import { getLikesHandler, likePostHandler, } from "./api/handlers/likesHandler.js";
+import { createCommentHandler, deleteCommentHandler, getCommentsByPostIdHandler, } from "./api/handlers/commentsHandler.js";
 import { createUserHandler, loginUserHandler, logoutHandler, } from "./api/handlers/userHandler.js";
-import { createPostHandler, imageUploadHandler, } from "./api/handlers/postHandler.js";
+import { createPostHandler, getAllPostsHandler, getPostByIdHandler, imageUploadHandler, } from "./api/handlers/postHandler.js";
 import { authMiddleware } from "./db/authentication/auth.js";
 dotenv.config();
 console.log("Loaded DATABASE_URL =", process.env.DATABASE_URL);
@@ -18,17 +20,27 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("."));
+const FRONTEND_ORIGIN = process.env.FRONTEND_URL ?? "http://localhost:5173";
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: FRONTEND_ORIGIN,
     credentials: true,
 }));
 // users api calls
 app.post("/api/users", createUserHandler);
 app.post("/api/login", loginUserHandler);
 app.post("/api/logout", logoutHandler);
-//image api calls
+// post api calls
 app.get("/upload-url", authMiddleware, imageUploadHandler);
-app.post("/api/post", authMiddleware, createPostHandler);
+app.get("/api/posts", getAllPostsHandler);
+app.get("/api/posts/:id", getPostByIdHandler); // Changed from /api/post/:id
+app.post("/api/posts", authMiddleware, createPostHandler); // Changed from /api/post
+// comments api calls
+app.get("/api/comments/:postId", getCommentsByPostIdHandler); // Simplified
+app.post("/api/comments/:postId", authMiddleware, createCommentHandler); // Simplified
+app.delete("/api/comments/:commentId", authMiddleware, deleteCommentHandler); // Simplified
+// likes api calls
+app.get("/api/likes/:postId", getLikesHandler); // Simplified
+app.post("/api/likes/:postId", authMiddleware, likePostHandler); // Simplified - toggle like/unlike
 app.listen(config.api.port, () => {
     console.log(`http://localhost:${config.api.port}`);
     console.log(`Server is running on port ${config.api.port}`);

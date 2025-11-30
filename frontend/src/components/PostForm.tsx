@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { axiosInstance } from "../lib/axios";
+import toast from "react-hot-toast";
 
 export const PostForm = () => {
   const [title, setTitle] = useState("");
@@ -25,7 +27,7 @@ export const PostForm = () => {
     try {
       let thumbnailUrl = null;
       if (imageFile) {
-        const { data } = await axios.get("http://localhost:3000/upload-url", {
+        const { data } = await axiosInstance.get("/upload-url", {
           params: {
             fileName: imageFile.name,
           },
@@ -40,8 +42,8 @@ export const PostForm = () => {
           },
         });
         thumbnailUrl = fileUrl;
-        await axios.post(
-          "http://localhost:3000/api/post",
+        await axiosInstance.post(
+          "/post",
           {
             title,
             content,
@@ -50,11 +52,11 @@ export const PostForm = () => {
           { withCredentials: true }
         );
       }
-      alert("Post created successfully!");
+      toast.success("Post created successfully");
       navigate("/");
     } catch (error) {
       console.error("Failed to create post:", error);
-      alert("Failed to create post");
+      toast.error("Failed to create post");
     } finally {
       setLoading(false);
     }
